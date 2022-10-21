@@ -26,3 +26,27 @@ def get_all_breakfasts():
         result.append(item_dict)
     
     return jsonify(result), 200
+
+@breakfast_bp.route('/<breakfast_id>', methods=['GET'])
+def get_one_breakfast(breakfast_id):
+    try:
+        breakfast_id = int(breakfast_id)
+    except ValueError:
+        return jsonify({"msg": f"invalid data type: {breakfast_id}"}), 400
+
+    chosen_breakfast = None
+    for breakfast in breakfast_items:
+        if breakfast.id == breakfast_id:
+            chosen_breakfast = breakfast
+
+    if chosen_breakfast is None:
+        return jsonify({"msg": f"Could not find breakfast item with id: {breakfast_id}"}), 404
+
+    return_breakfast = {
+        "id": chosen_breakfast.id,
+        "name": chosen_breakfast.name,
+        "rating": chosen_breakfast.rating,
+        "prep_time": chosen_breakfast.prep_time
+    }
+    return jsonify(return_breakfast), 200
+
