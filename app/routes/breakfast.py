@@ -1,5 +1,8 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+from app import db
+from app.models.breakfast import Breakfast
 
+'''
 class Breakfast():
     def __init__(self, id, name, rating, prep_time): # items, calories, 
         self.id = id
@@ -13,6 +16,7 @@ breakfast_items = [
     Breakfast(3, "cereal", 1, 1),
     Breakfast(4, "oatmeal", 3, 10)
 ]
+'''
 
 breakfast_bp = Blueprint("breakfast", __name__, url_prefix="/breakfast")
 
@@ -20,7 +24,8 @@ breakfast_bp = Blueprint("breakfast", __name__, url_prefix="/breakfast")
 def get_all_breakfasts():
     #return("hello world")
     result = []
-    for item in breakfast_items:
+    all_breakfasts = Breakfast.query.all()
+    for item in all_breakfasts:
         item_dict = {"id":item.id, "name":item.name, 
                     "rating":item.rating, "prep_time":item.prep_time}
         result.append(item_dict)
@@ -50,3 +55,21 @@ def get_one_breakfast(breakfast_id):
     }
     return jsonify(return_breakfast), 200
 
+@breakfast_bp.route('', methods=['POST'])
+def create_one_breakfast():
+    request_body = request.get_json()
+
+    # new_breakfast = Breakfast(request_body['id'], 
+    #                         request_body['name'], 
+    #                         request_body['rating'], 
+    #                         request_body['prep_time'])
+    new_breakfast = Breakfast(name=request_body['name'],
+                            rating=request_body['rating'],
+                            prep_time=request_body['prep_time'])
+    db.session.add(new_breakfast)
+    db.session.commit()
+
+    return jsonify({"msg":f"Successfully created Breakfast with id={new_breakfast.id}"}), 201
+    
+
+    
